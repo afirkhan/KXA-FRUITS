@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08783f"><link rel="manifest" href="manifest.json">
+<title>KXA Apple Stock</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef4f0;font-family:Arial,sans-serif;color:#10251b}.app{max-width:520px;margin:auto;min-height:100vh;background:#fff}
+header{background:linear-gradient(135deg,#07542f,#0b8b4a);color:#fff;padding:20px 18px 18px;border-radius:0 0 24px 24px}
+.logo{font-size:32px;font-weight:900;color:#ffd85a}.brand{letter-spacing:3px;font-size:12px}.date{margin-top:16px;background:#fff;color:#17221c;border-radius:13px;padding:13px;font-size:16px}
+main{padding:15px 13px 88px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{padding:15px;border-radius:17px;color:#fff;min-height:110px}.card h3{margin:0;font-size:16px}.num{font-size:29px;font-weight:800;margin-top:8px}.green{background:#12a65a}.blue{background:#2679d3}.orange{background:#ed8b10}.purple{background:#7450c9}
+.panel{border:1px solid #dfe9e2;border-radius:16px;padding:14px;margin-top:13px}.title{font-size:19px;font-weight:800;margin:4px 0 12px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}label{font-size:12px;font-weight:700;display:block;margin:5px 0}input,select{width:100%;padding:12px;border:1px solid #ccd9d0;border-radius:10px;background:#fff;font-size:14px}button{border:0;border-radius:11px;padding:12px;font-weight:800;font-size:14px}.save{width:100%;margin-top:11px;background:#08783f;color:white}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tab{background:#edf6f0;color:#07542f;white-space:nowrap}.tab.active{background:#08783f;color:#fff}.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0ed;font-size:13px}.row:last-child{border-bottom:0}.pill{display:inline-block;border-radius:20px;padding:4px 8px;background:#eaf5ef;color:#08783f;font-size:11px;font-weight:800}.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.mini{background:#f3f8f4;border-radius:12px;padding:11px}.mini b{font-size:21px;display:block}.muted{color:#66746b;font-size:11px}.hidden{display:none}nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#fff;border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(3,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:4}.nav{background:white;color:#657068}.nav.active{color:#08783f}
+</style></head><body><div class="app">
+<header><div class="logo">KXA</div><div class="brand">APPLE STOCK • GROUP</div><div class="date">📅 <span id="today"></span></div></header>
+<main>
+<section id="home">
+<div class="grid">
+<div class="card green"><h3>🍎 Daily Picking</h3><div class="num" id="pickTotal">0</div>crates</div>
+<div class="card blue"><h3>❄️ CA Store</h3><div class="num" id="storeTotal">0</div>crates</div>
+<div class="card orange"><h3>🚚 Vehicle Entries</h3><div class="num" id="vehicleTotal">0</div>entries</div>
+<div class="card purple"><h3>📦 Records</h3><div class="num" id="recordTotal">0</div>entries</div>
+</div>
+<div class="panel"><div class="title">Add Daily Entry</div>
+<div class="tabs"><button class="tab active" onclick="setType('picking',this)">🍎 Daily Picking</button><button class="tab" onclick="setType('store',this)">❄️ CA Store</button><button class="tab" onclick="setType('vehicle',this)">🚚 Vehicle</button></div>
+<div class="formgrid">
+<div><label>Date</label><input id="date" type="date"></div>
+<div><label>Khata</label><input id="khata" type="text" placeholder="Write Khata name"></div>
+<div><label>Variety</label><select id="variety"><option>Red Delicious</option><option>Delicious</option><option>Golden</option></select></div>
+<div><label>Crates</label><input id="crates" type="number" min="0" placeholder="Enter crates"></div>
+<div id="vehicleBox"><label>Vehicle / Owner</label><input id="vehicle" placeholder="Vehicle / owner name"></div>
+<div><label>Remarks</label><input id="remarks" placeholder="Optional"></div>
+</div><button class="save" onclick="save()">＋ Save Entry</button></div>
+<div class="panel"><div class="title">Total Day by Day</div><div id="days"></div></div>
+</section>
+<section id="entries" class="hidden"><div class="title">All Entries</div><div class="panel"><div id="all"></div></div></section>
+<section id="reports" class="hidden"><div class="title">Reports</div><div class="panel"><div class="summary"><div class="mini"><b id="rp">0</b><span class="muted">Picked</span></div><div class="mini"><b id="rs">0</b><span class="muted">CA Store</span></div><div class="mini"><b id="rv">0</b><span class="muted">Vehicle Crates</span></div></div><div id="breakdown" style="margin-top:12px"></div></div></section>
+</main>
+<nav><button class="nav active" onclick="page('home',this)">⌂<br>Home</button><button class="nav" onclick="page('entries',this)">☷<br>Entries</button><button class="nav" onclick="page('reports',this)">▥<br>Reports</button></nav>
+</div>
+<script>
+const KEY='kxa_v3';let data=JSON.parse(localStorage.getItem(KEY)||'[]'),type='picking';
+const $=x=>document.getElementById(x);$('date').value=new Date().toISOString().slice(0,10);$('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+function setType(t,b){type=t;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('vehicleBox').style.display=t==='vehicle'?'block':'none'}
+function save(){let qty=+$('crates').value;if(!qty)return alert('Please enter crates.');let khata=$('khata').value.trim();if(!khata)return alert('Please write Khata name.');data.push({date:$('date').value,khata,variety:$('variety').value,crates:qty,type,vehicle:$('vehicle').value.trim(),remarks:$('remarks').value.trim()});localStorage.setItem(KEY,JSON.stringify(data));$('crates').value='';$('remarks').value='';render();alert('Entry saved successfully.')}
+function totals(){let p=data.filter(x=>x.type==='picking').reduce((a,x)=>a+x.crates,0),s=data.filter(x=>x.type==='store').reduce((a,x)=>a+x.crates,0),v=data.filter(x=>x.type==='vehicle').reduce((a,x)=>a+x.crates,0);return[p,s,v]}
+function render(){let [p,s,v]=totals();$('pickTotal').textContent=p;$('storeTotal').textContent=s;$('vehicleTotal').textContent=data.filter(x=>x.type==='vehicle').length;$('recordTotal').textContent=data.length;$('rp').textContent=p;$('rs').textContent=s;$('rv').textContent=v;
+let dates=[...new Set(data.map(x=>x.date))].sort().reverse();$('days').innerHTML=dates.map(d=>{let P=data.filter(x=>x.date===d&&x.type==='picking').reduce((a,x)=>a+x.crates,0),S=data.filter(x=>x.date===d&&x.type==='store').reduce((a,x)=>a+x.crates,0),V=data.filter(x=>x.date===d&&x.type==='vehicle').reduce((a,x)=>a+x.crates,0);return `<div class="row"><b>${new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</b><span>🍎 ${P} &nbsp; ❄️ ${S} &nbsp; 🚚 ${V}</span></div>`}).join('')||'<div class="muted">No entries yet.</div>';
+$('all').innerHTML=data.slice().reverse().map(x=>`<div class="row"><span><span class="pill">${x.type==='picking'?'PICKING':x.type==='store'?'CA STORE':'VEHICLE'}</span><br>${x.date} • ${x.khata} • ${x.variety}<br><span class="muted">${x.vehicle||''} ${x.remarks||''}</span></span><b>${x.crates}</b></div>`).join('')||'<div class="muted">No entries yet.</div>';
+let vars=['Red Delicious','Delicious','Golden'];$('breakdown').innerHTML='<b>Variety Breakdown</b>'+vars.map(v=>{let n=data.filter(x=>x.variety===v).reduce((a,x)=>a+x.crates,0);return `<div class="row"><span>${v}</span><b>${n} crates</b></div>`}).join('')}
+function page(id,b){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}render();
+</script></body></html>
